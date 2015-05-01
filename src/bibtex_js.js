@@ -250,60 +250,6 @@ function BibtexDisplay() {
     value = value.replace(/\{(.*?)\}/g, '$1');
     return value;
   }
-  
-  this.displayBibtex2 = function(i, o) {
-    var b = new BibtexParser();
-    b.setInput(i);
-    b.bibtex();
-
-    var e = b.getEntries();
-    var old = o.find("*");
-  
-    for (var item in e) {
-      var tpl = $(".bibtex_template").clone().removeClass('bibtex_template');
-      tpl.addClass("unused");
-      
-      for (var key in e[item]) {
-      
-        var fields = tpl.find("." + key.toLowerCase());
-        for (var i = 0; i < fields.size(); i++) {
-          var f = $(fields[i]);
-          f.removeClass("unused");
-          var value = this.fixValue(e[item][key]);
-          if (f.is("a")) {
-              if (key.is("url")) {
-                  f.attr("href", "http://dx.doi.org/" + value);
-              } else {
-                  f.attr("href", value);
-              }
-            
-          } else {
-            var currentHTML = f.html() || "";
-            if (currentHTML.match("%")) {
-              // "complex" template field
-              f.html(currentHTML.replace("%", value));
-            } else {
-              // simple field
-              f.html(value);
-            }
-          }
-        }
-      }
-    
-      var emptyFields = tpl.find("span .unused");
-      emptyFields.each(function (key,f) {
-        if (f.innerHTML.match("%")) {
-          f.innerHTML = "";
-        }
-      });
-    
-      o.append(tpl);
-      tpl.show();
-    }
-    
-    old.remove();
-  }
-
 
   this.displayBibtex = function(input, output) {
     // parse bibtex input
@@ -360,7 +306,12 @@ function BibtexDisplay() {
         var key = keys[index];
         var value = entry[key] || "";
         tpl.find("span:not(a)." + key.toLowerCase()).html(this.fixValue(value));
-        tpl.find("a." + key.toLowerCase()).attr('href', this.fixValue(value));
+
+        if (key.toLowerCase() == "doi") {
+            tpl.find("a." + key.toLowerCase()).attr('href', "http://dx.doi.org/"+this.fixValue(value));
+        } else {
+            tpl.find("a." + key.toLowerCase()).attr('href', this.fixValue(value));
+        }
       }
       
       output.append(tpl);
