@@ -271,7 +271,12 @@ function BibtexDisplay() {
           f.removeClass("unused");
           var value = this.fixValue(e[item][key]);
           if (f.is("a")) {
-            f.attr("href", value);
+              if (key.is("url")) {
+                  f.attr("href", "http://dx.doi.org/" + value);
+              } else {
+                  f.attr("href", value);
+              }
+            
           } else {
             var currentHTML = f.html() || "";
             if (currentHTML.match("%")) {
